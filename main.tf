@@ -30,7 +30,19 @@ data "aws_ami" "app_ami" {
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm*"]
+    values = ["amzn2-ami-kernel-5.10-hvm-*"]
+  }
+}
+
+
+data "aws_ami" "app_region" {
+  most_recent = true
+  owners = ["amazon"]
+  provider      = aws.west
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-kernel-5.10-hvm-*"]
   }
 }
 
@@ -48,7 +60,7 @@ resource "aws_instance" "vm_instance_one" { # This is resource block type is her
 
 resource "aws_instance" "vm_instance_two" { # This is resource block type is here "aws_instance"  and resource name is "vm_instance"
   #name = "ec2_instance"
-  ami           = data.aws_ami.app_ami.id #  arguments  and argument can be include things like machine sizes, disk image names, or VPC IDs and etc
+  ami           = data.aws_ami.app_region.id #  arguments  and argument can be include things like machine sizes, disk image names, or VPC IDs and etc
   instance_type = "t2.micro"
   provider      = aws.west
   tags = {
