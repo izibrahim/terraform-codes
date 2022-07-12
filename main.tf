@@ -48,9 +48,20 @@ resource "aws_instance" "vm_instance_two" { # This is resource block type is her
 resource "aws_eip" "lb2" {
   vpc      = true
   provider = aws.west
+  count = var.is_test == true ? 2 : 0
+}
+
+resource "aws_ebs_volume" "db_ebs" {
+  availability_zone = "us-west-2a"
+  provider      = aws.west
+  size              = 8
+  tags = local.common_tags
 }
 
 
+variable "is_test" {
+  default = true
+}
 
 resource "aws_eip" "lb" {
   vpc = true
@@ -85,6 +96,11 @@ resource "aws_instance" "ec2_import_resource" { # This is resource block type is
     Name = "ec2_instance"
   }
 }
+#
+output "lists_of_res" {
+  value = concat(aws_iam_user.lb[*].arn,aws_instance.vm_instance_one[*].tags)
+}
+
 
 #terraform import aws_instance.ec2_import_resource i-0a145f9a867bf6043
 
@@ -134,5 +150,10 @@ terraform Import
   network requests to inspect parts of your infrastructure relevant to
   the resource being imported.
 
+  To disable the TF_LOG=off this is disable the log dont copy the TF_LOG= to github
+  it have access key info
+
+  terraform refresh and terraform state mv create the backup state files
+  alais provider name must be string
 
 */
