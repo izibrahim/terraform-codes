@@ -18,6 +18,11 @@ provider "aws" {
   region = "us-east-2"
 }
 
+provider "aws" {
+  region = "us-west-2"
+  alias  = "west"
+}
+
 resource "aws_instance" "vm_instance_one" { # This is resource block type is here "aws_instance"  and resource name is "vm_instance"
   #name = "ec2_instance"
   ami           = "ami-02d1e544b84bf7502" #  arguments  and argument can be include things like machine sizes, disk image names, or VPC IDs and etc
@@ -27,6 +32,25 @@ resource "aws_instance" "vm_instance_one" { # This is resource block type is her
   }
   count = 3
 }
+
+
+resource "aws_instance" "vm_instance_two" { # This is resource block type is here "aws_instance"  and resource name is "vm_instance"
+  #name = "ec2_instance"
+  ami           = "ami-098e42ae54c764c35" #  arguments  and argument can be include things like machine sizes, disk image names, or VPC IDs and etc
+  instance_type = "t2.micro"
+  provider      = aws.west
+  tags = {
+    test = var.ec2_instance[count.index]
+  }
+  count = 3
+}
+
+resource "aws_eip" "lb2" {
+  vpc      = true
+  provider = aws.west
+}
+
+
 
 resource "aws_eip" "lb" {
   vpc = true
@@ -49,7 +73,7 @@ output "vitrual_ip" {
 }
 
 output "tags-name" {
-  value= aws_instance.vm_instance_one[*].tags
+  value = aws_instance.vm_instance_one[*].tags
 }
 
 # below code is use to import the resource
@@ -58,7 +82,7 @@ resource "aws_instance" "ec2_import_resource" { # This is resource block type is
   ami           = "ami-02d1e544b84bf7502"
   instance_type = "t2.micro"
   tags = {
-    Name = 	"ec2_instance"
+    Name = "ec2_instance"
   }
 }
 
