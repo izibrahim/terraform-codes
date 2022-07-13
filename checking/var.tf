@@ -1,3 +1,0 @@
-variable "TST" {
-default =
-}
