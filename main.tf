@@ -25,7 +25,7 @@ provider "aws" {
 
 data "aws_ami" "app_ami" {
   most_recent = true
-  owners = ["amazon"]
+  owners      = ["amazon"]
 
 
   filter {
@@ -37,8 +37,9 @@ data "aws_ami" "app_ami" {
 
 data "aws_ami" "app_region" {
   most_recent = true
-  owners = ["amazon"]
-  provider      = aws.west
+  owners      = ["amazon"]
+  provider    = aws.west
+
 
   filter {
     name   = "name"
@@ -51,13 +52,29 @@ resource "aws_instance" "vm_instance_one" { # This is resource block type is her
   #name = "ec2_instance"
   ami           = data.aws_ami.app_ami.id #  arguments  and argument can be include things like machine sizes, disk image names, or VPC IDs and etc
   instance_type = "t2.micro"
+  key_name = "remote_exec"
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = file("./remote_exec.pem") # ./ means current working directory
+    host        = self.public_ip
+  }
+  provisioner "remote-exec" {
+    on_failure = continue # Now this will not mark as resoucre as taint.
+    inline = [
+      "mkdir remote_exec",
+      "cd remote_exec",
+      "cat > cat.txt" # if any of this command fail provisinar will fail and mark resouces as taint
+    ]
+  }
   tags = {
     test = var.ec2_instance[count.index]
   }
   count = 3
+
 }
 
-
+/*
 resource "aws_instance" "vm_instance_two" { # This is resource block type is here "aws_instance"  and resource name is "vm_instance"
   #name = "ec2_instance"
   ami           = data.aws_ami.app_region.id #  arguments  and argument can be include things like machine sizes, disk image names, or VPC IDs and etc
@@ -72,14 +89,14 @@ resource "aws_instance" "vm_instance_two" { # This is resource block type is her
 resource "aws_eip" "lb2" {
   vpc      = true
   provider = aws.west
-  count = var.is_test == true ? 2 : 0
+  count    = var.is_test == true ? 2 : 0
 }
 
 resource "aws_ebs_volume" "db_ebs" {
   availability_zone = "us-west-2a"
-  provider      = aws.west
+  provider          = aws.west
   size              = 8
-  tags = local.common_tags
+  tags              = local.common_tags
 }
 
 
@@ -103,6 +120,8 @@ output "iam_user" {
   value = aws_iam_user.lb[*].arn
 }
 
+
+
 output "vitrual_ip" {
   value = aws_eip.lb.public_ip
 }
@@ -122,15 +141,17 @@ resource "aws_instance" "ec2_import_resource" { # This is resource block type is
 }
 #
 output "lists_of_res" {
-  value = concat(aws_iam_user.lb[*].arn,aws_instance.vm_instance_one[*].tags)
+  value = concat(aws_iam_user.lb[*].arn, aws_instance.vm_instance_one[*].tags)
 }
+
+
 
 
 #terraform import aws_instance.ec2_import_resource i-0a145f9a867bf6043
 
 # finding once i added the google and run the validate command it findout that the provide google not installed
 #D:\Cloud\Terraforn-BootCamp-Udemy\codes\Practice TF>terraform validate
-/*
+
 ╷
 │ Error: Missing required provider
 │
@@ -180,4 +201,6 @@ terraform Import
   terraform refresh and terraform state mv create the backup state files
   alais provider name must be string
 
+  state file not maintain any thing related to provisioners lcoal/exec
+      on_failure = continue # Now this will not mark as resoucre as taint.
 */

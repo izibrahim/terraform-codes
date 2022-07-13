@@ -20,6 +20,6 @@ variable "ec2_instance" {
 locals {
   common_tags = {
     department = "IT"
-    app = "kubernate"
+    app        = "kubernate"
   }
 }

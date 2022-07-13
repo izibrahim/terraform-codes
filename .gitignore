@@ -2,3 +2,5 @@
 terraform.*
 *.txt
 demoone
+remote_exec.pem
+*.pem
