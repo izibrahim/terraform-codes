@@ -1,0 +1,50 @@
+Modules provide:-A Terraform module is a set of Terraform configuration files in a single directory.
+1. Organize configuration
+2. Encapsulate configuration
+3. Re-use configuration
+4. Provide consistency and ensure best practices 
+A module that is called by another configuration is sometimes referred to as a "child module" of that configuration.
+Terraform supports a variety of remote sources, including the Terraform Registry, most 
+version control systems,
+HTTP URLs, and
+Terraform Cloud 
+Terraform Enterprise private module registries.
+
+best practices: 
+Name your provider terraform-<PROVIDER>-<NAME>
+
+- The source argument is required when you use a Terraform module. In the example configuration
+- The version argument is not required, but we highly recommend you include it when using a Terraform module. 
+-  Without the version argument, Terraform will load the latest version of the module. 
+- Modules can contain both required and optional arguments.You must specify all required arguments to use the module. 
+Suppose you import 2 modules, 1 and 2.  
+module 1 {.....}
+module 2 {.....}
+
+-Modules also have output values. You can reference them with the module.MODULE_NAME.OUTPUT_NAME
+module 2 can refer the output variable of module 1. 
+- Terraform will not display module outputs by default. You must create a corresponding output in your root module and set it to the module's output. 
+- If you use Terraform Cloud to provision your resources, your workspace now displays the list of all of the resources it manages.
+- When using a new module for the first time, you must run either terraform init or terraform get to install the module.
+- When you run these commands, Terraform will install any new modules in the .terraform/modules directory within your configuration's working directory.
+- For local modules, Terraform will create a symlink to the module's directory. Because of this, any changes to local modules will be effective immediately, without having to reinitialize or re-run terraform get.
+- As you may already know, Terraform treats every configuration as a module.
+- When you run terraform commands, or use Terraform Cloud or Terraform Enterprise to remotely run Terraform, the target directory containing Terraform configuration is treated as the root module.
+-See How to define maps in terraform and practice it. - we recommend that every Terraform configuration be created with the assumption that it may be used as a module, because doing so will help you design your configurations to be flexible, reusable, and composable.
+- Module file structure. 
+ ── LICENSE
+├── README.md
+├── main.tf
+├── variables.tf
+├── outputs.tf
+
+files should not be distribute.
+terraform.tfstate / terraform.tfstate.backup
+.terraform
+*.tfvars - Since module input variables are set via arguments to the module block in your configuration, you don't need to distribute any *.tfvars files with your module, 
+unless you are also using it as a standalone Terraform configuration.
+
+- Notice that there is no provider block in this configuration. When Terraform processes a module block, it will inherit the provider from the enclosing configuration. Because of this, we recommend that you do not include provider blocks in modules.
+- Whenever you add a new module to a configuration, Terraform must install the module before it can be used. Both the terraform get and terraform init commands will install and update module.
+- Terraform Cloud allows users to create and confidentially share infrastructure modules within an organization using the private registry. With Terraform Enterprise, the private registry allows you to share modules within or across organizations.
+- Tag - Terraform Cloud modules should be semantically versioned, and pull their versioning information from repository release tags. To publish a module initially, at least one release tag must be present. Tags that don't look like version numbers are ignored. Version tags can optionally be prefixed with a v.
