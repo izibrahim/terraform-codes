@@ -1,0 +1,104 @@
+Collection functions:
+
+- concat: takes two or more lists and combines them into a single list.
+terraform console
+
+ concat(["a", ""], ["b", "c"])
+[
+  "a",
+  "",
+  "b",
+  "c",
+]
+
+- contains: determines whether a given list or set contains a given single value as one of its elements.
+> contains(["a", "b", "c"], "a")
+true
+
+- element: retrieves a single element from a list.
+element(["a", "b", "c"], 1)
+
+- lookup: retrieves the value of a single element from a map, given its key. If the given key does not exist, the given default value is returned instead.
+> lookup({a="ay", b="bee"}, "a", "what?")
+ay
+
+
+slice: extracts some consecutive elements from within a list
+
+slice(["a", "b", "c", "d"], 1, 3)
+[
+  "b",
+  "c",
+]
+
+- compact: takes a list of strings and returns a new list with any empty string elements removed.
+
+> compact(["a", "", "b", "c"])
+[
+  "a",
+  "b",
+  "c",
+]
+
+- zipmap: constructs a map from a list of keys and a corresponding list of values.
+
+> zipmap(["a", "b"], [1, 2])
+{
+  "a" = 1
+  "b" = 2
+}
+
+- merge takes an arbitrary number of maps or objects, and returns a single map or object that contains a merged set of elements from all arguments.
+
+> merge({a="b", c="d"}, {e="f", c="z"})
+{
+  "a" = "b"
+  "c" = "z"
+  "e" = "f"
+}
+
+> merge({a="b"}, {a=[1,2], c="z"}, {d=3})
+{
+  "a" = [
+    1,
+    2,
+  ]
+  "c" = "z"
+  "d" = 3
+}
+
+
+- chunklist:  splits a single list into fixed-size chunks, returning a list of lists.
+
+> chunklist(["a", "b", "c", "d", "e"], 2)
+[
+  [
+    "a",
+    "b",
+  ],
+  [
+    "c",
+    "d",
+  ],
+  [
+    "e",
+  ],
+]
+> chunklist(["a", "b", "c", "d", "e"], 1)
+[
+  [
+    "a",
+  ],
+  [
+    "b",
+  ],
+  [
+    "c",
+  ],
+  [
+    "d",
+  ],
+  [
+    "e",
+  ],
+]

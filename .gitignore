@@ -4,3 +4,4 @@ cred.txt
 demoone
 remote_exec.pem
 *.pem
+.terraform*
